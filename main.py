@@ -1,6 +1,7 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import os
+import unittest
 
 # 定义一个函数来读取文本文件
 def read_texts_from_folder(folder_path):
@@ -25,10 +26,15 @@ def print_similarity_percentage(texts, similarities):
     for name, sim in zip(texts, similarities):
         print(f"{name}: {sim * 100:.2f}%")
 
-# 主程序
+# 单元测试
+class TestTextSimilarity(unittest.TestCase):
+    def test_cosine_similarity(self):
+        test_folder_path = 'text'  # 当前目录下text的文件夹
+        texts = read_texts_from_folder(test_folder_path)
+        texts_keys, similarities = calculate_cosine_similarity(texts)
+        self.assertTrue(all(sim >= 0 for sim in similarities))  # 相似度在0到1之间
+        self.assertTrue(all(sim <= 1 for sim in similarities))  # 相似度在0到1之间
+
 if __name__ == '__main__':
-    # 文本文件放在text文件夹中
-    folder_path = 'text'
-    texts = read_texts_from_folder(folder_path)
-    texts_keys, similarities = calculate_cosine_similarity(texts)
-    print_similarity_percentage(texts_keys, similarities)
+    # 运行单元测试
+    unittest.main()
