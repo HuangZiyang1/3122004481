@@ -1,25 +1,34 @@
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+import os
 
-# 文件内容
-path = "C:/Users/Administrator/Documents/WeChat Files/wxid_aoogts1o45er22/FileStorage/File/2024-09/text"
-texts = {
-    'orig.txt': open(path + '/orig.txt', 'r', encoding='utf-8').read(),
-    'orig_0.8_add.txt': open(path+'/orig_0.8_add.txt', 'r', encoding='utf-8').read(),
-    'orig_0.8_del.txt': open(path+'/orig_0.8_del.txt', 'r', encoding='utf-8').read(),
-    'orig_0.8_dis_1.txt': open(path+'/orig_0.8_dis_1.txt', 'r', encoding='utf-8').read(),
-    'orig_0.8_dis_10.txt': open(path+'/orig_0.8_dis_10.txt', 'r', encoding='utf-8').read(),
-    'orig_0.8_dis_15.txt': open(path+'/orig_0.8_dis_15.txt', 'r', encoding='utf-8').read(),
-}
+# 定义一个函数来读取文本文件
+def read_texts_from_folder(folder_path):
+    texts = {}
+    for filename in os.listdir(folder_path):
+        if filename.endswith('.txt'):
+            with open(os.path.join(folder_path, filename), 'r', encoding='utf-8') as file:
+                texts[filename] = file.read()
+    return texts
 
 # 预处理和文本分割
-vectorizer = CountVectorizer()
-X = vectorizer.fit_transform(texts.values())
+# 计算余弦相似度
+def calculate_cosine_similarity(texts):
+    vectorizer = CountVectorizer()
+    X = vectorizer.fit_transform(texts.values())
+    original = X[0]  # 第一个是原始文件
+    similarities = cosine_similarity(original, X)
+    return texts.keys(), similarities[0]
 
-# 计算原始文件与其他文件的余弦相似度
-original = X[0]  # 第一个是原始文件
-similarities = cosine_similarity(original, X)
+# 打印查重率
+def print_similarity_percentage(texts, similarities):
+    for name, sim in zip(texts, similarities):
+        print(f"{name}: {sim * 100:.2f}%")
 
-# 输出查重率
-for name, sim in zip(texts.keys(), similarities[0]):
-    print(f"{name}: {sim * 100:.2f}%")
+# 主程序
+if __name__ == '__main__':
+    # 文本文件放在text文件夹中
+    folder_path = 'text'
+    texts = read_texts_from_folder(folder_path)
+    texts_keys, similarities = calculate_cosine_similarity(texts)
+    print_similarity_percentage(texts_keys, similarities)
