@@ -4,6 +4,7 @@ import os
 import unittest
 from unittest.mock import patch, mock_open
 
+
 # 定义一个函数来读取文本文件
 def read_texts_from_folder(folder_path):
     texts = {}
@@ -13,26 +14,29 @@ def read_texts_from_folder(folder_path):
                 file_path = os.path.join(folder_path, filename)
                 with open(file_path, 'r', encoding='utf-8') as file:
                     texts[filename] = file.read()
-    except Exception as e:
+    except Exception:
         raise  # 抛出异常，以便测试用例捕获
     return texts
+
 
 # 预处理和文本分割
 # 计算余弦相似度
 def calculate_cosine_similarity(texts):
     try:
         vectorizer = CountVectorizer()
-        X = vectorizer.fit_transform(texts.values())
-        original = X[0]  # 第一个是原始文件
-        similarities = cosine_similarity(original, X)
+        x = vectorizer.fit_transform(texts.values())
+        original = x[0]  # 第一个是原始文件
+        similarities = cosine_similarity(original, x)
         return texts.keys(), similarities[0]
-    except Exception as e:
+    except Exception:
         raise  # 抛出异常，以便测试用例捕获
+
 
 # 打印查重率
 def print_similarity_percentage(texts, similarities):
     for name, sim in zip(texts, similarities):
         print(f"{name}: {sim * 100:.2f}%")
+
 
 # 单元测试
 class TestTextSimilarity(unittest.TestCase):
@@ -41,7 +45,7 @@ class TestTextSimilarity(unittest.TestCase):
 
     # 测试mock文件
     @patch('builtins.open', new_callable=mock_open, read_data='Sample text data\nSample text data')
-    def test_cosine_similarity_with_mocked_file(self, mocked_file):
+    def test_cosine_similarity_with_mocked_file(self):
         texts = read_texts_from_folder(self.test_folder_path)
         texts_keys, similarities = calculate_cosine_similarity(texts)
         for sim in similarities:
@@ -55,7 +59,7 @@ class TestTextSimilarity(unittest.TestCase):
     # 测试空文件
     def test_empty_files(self):
         with patch('os.listdir', return_value=['file1.txt', 'file2.txt']), \
-             patch('builtins.open', new_callable=mock_open, read_data=''):
+                patch('builtins.open', new_callable=mock_open, read_data=''):
             texts = read_texts_from_folder(self.test_folder_path)
             self.assertEqual(len(texts), 2)
             self.assertTrue(all(text == '' for text in texts.values()))
@@ -109,6 +113,7 @@ class TestTextSimilarity(unittest.TestCase):
     def test_file_path_error(self):
         with self.assertRaises(OSError):
             read_texts_from_folder('/invalid/path')
+
 
 if __name__ == '__main__':
     unittest.main()
