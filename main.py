@@ -21,8 +21,8 @@ def calculate_cosine_similarity(texts):
     vectorizer = CountVectorizer()
     x = vectorizer.fit_transform(texts.values())
     original = x[0]  # 第一个是原始文件
-    similarities = cosine_similarity(original, x)
-    return texts.keys(), similarities[0]
+    similarities = cosine_similarity(original, x[1:])
+    return list(texts.keys())[1:], similarities[0]
 
 
 # 打印查重率
@@ -32,8 +32,7 @@ def print_similarity_percentage(texts, similarities):
 
 
 def main():
-    folder_path = 'text'  # 文本文件当前目录下的 'text' 文件夹中
-    texts = read_texts_from_folder(folder_path)
+    texts = read_texts_from_folder('text')
     texts_keys, similarities = calculate_cosine_similarity(texts)
     print_similarity_percentage(texts_keys, similarities)
     pass
