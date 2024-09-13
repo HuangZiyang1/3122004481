@@ -2,6 +2,7 @@ import unittest
 from unittest.mock import patch, mock_open
 from main import read_texts_from_folder, calculate_cosine_similarity
 
+
 class TestTextSimilarity(unittest.TestCase):
     def setUp(self):
         self.test_folder_path = 'text'
