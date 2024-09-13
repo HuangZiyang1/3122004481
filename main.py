@@ -45,7 +45,7 @@ class TestTextSimilarity(unittest.TestCase):
 
     # 测试mock文件
     @patch('builtins.open', new_callable=mock_open, read_data='Sample text data\nSample text data')
-    def test_cosine_similarity_with_mocked_file(self):
+    def test_cosine_similarity_with_mocked_file(self, _):
         texts = read_texts_from_folder(self.test_folder_path)
         texts_keys, similarities = calculate_cosine_similarity(texts)
         for sim in similarities:
