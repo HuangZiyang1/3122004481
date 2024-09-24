@@ -184,3 +184,21 @@ function gradeProblems(exerciseFile, answerFile) {
 
   fs.writeFileSync('Grade.txt', `Correct: ${correct.length} (${correct.join(', ')})\nWrong: ${wrong.length} (${wrong.join(', ')})`);
 }
+
+// 命令行参数解析
+const args = process.argv.slice(2);
+if (args.includes('-n') && args.includes('-r')) {
+  let numProblems = parseInt(args[args.indexOf('-n') + 1]);
+  let range = parseInt(args[args.indexOf('-r') + 1]);
+  if (isNaN(range)) {
+    console.log("必须输入一个数字作为范围。");
+    process.exit(1);
+  }
+  generateProblems(numProblems, range);
+} else if (args.includes('-e') && args.includes('-a')) {
+  let exerciseFile = args[args.indexOf('-e') + 1];
+  let answerFile = args[args.indexOf('-a') + 1];
+  gradeProblems(exerciseFile, answerFile);
+} else {
+  console.log("用例: Myapp.exe -n <number of problems> -r <range> or Myapp.exe -e <exercise file> -a <answer file>");
+}
