@@ -133,10 +133,17 @@ function generateExpression(maxOperators, range) {
 
 // 计算表达式结果
 function evaluateExpression(expr) {
-  try {
+  if (expr.includes('/')) {
+    // 自定义计算真分数方法
+    let result = eval(expr);
+    if (Number.isInteger(result)) {
+      return result;
+    } else {
+      // 通分每个数，计算得到分数的结果
+      return eval(expr);
+    }
+  } else {
     return eval(expr);
-  } catch (e) {
-    return null;
   }
 }
 
