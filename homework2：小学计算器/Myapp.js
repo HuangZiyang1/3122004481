@@ -85,3 +85,102 @@ class Fraction {
     return new Fraction(num, denom).simplify();
   }
 }
+// 生成随机自然数或真分数
+function generateRandomNumberOrFraction(range) {
+  let isFraction = Math.random() > 0.5;
+  if (isFraction) {
+    let numerator = Math.floor(Math.random() * range) + 1;
+    let denominator = Math.floor(Math.random() * range) + 1;
+    return new Fraction(numerator, denominator);
+  } else {
+    return Math.floor(Math.random() * range);
+  }
+}
+
+// 生成随机运算符
+function getRandomOperator() {
+  const operators = ['+', '-', '*', '/'];
+  return operators[Math.floor(Math.random() * operators.length)];
+}
+
+// 生成随机表达式
+function generateExpression(maxOperators, range) {
+  let expr = generateRandomNumberOrFraction(range).toString();
+  let operatorCount = Math.floor(Math.random() * (maxOperators - 1)) + 1; // 至少一个运算符
+
+  for (let i = 0; i < operatorCount; i++) {
+    let operator = getRandomOperator();
+    let nextNum = generateRandomNumberOrFraction(range).toString();
+    if (operator === '-' && (expr instanceof Fraction ? expr.numerator < nextNum : expr < nextNum)) {
+      [expr, nextNum] = [nextNum, expr]; // 确保减法表达式不产生负数
+    }
+    if (operator === '/' && (expr instanceof Fraction ? expr.numerator <= nextNum : expr <= nextNum)) {
+      if (nextNum instanceof Fraction ? nextNum.numerator === 0 : nextNum === 0) {
+        i--; // 除数不能为 0，重新生成
+        continue;
+      }
+    }
+    expr = `(${expr} ${operator} ${nextNum})`;
+  }
+
+  return expr;
+}
+
+// 计算表达式结果
+function evaluateExpression(expr) {
+  try {
+    return eval(expr);
+  } catch (e) {
+    return null;
+  }
+}
+
+// 生成题目和答案
+function generateProblems(numProblems, range) {
+  let problems = [];
+  let answers = [];
+  let generated = new Set();
+
+  for (let i = 0; i < numProblems; i++) {
+    let problem;
+    do {
+      problem = generateExpression(3, range);
+      problem = problem.replace(/,/g, "'");
+    } while (generated.has(problem));
+    generated.add(problem);
+    let answer = evaluateExpression(problem);
+    
+    if (answer !== null && answer !== 0) { // 避免生成 0 = 的无效题目
+      problems.push(`${i + 1}. ${problem} = `); // 添加序号
+      answers.push(`${i + 1}. ${answer}`); // 添加序号
+    } else {
+      i--; // 重新生成
+    }
+  }
+
+  fs.writeFileSync('Exercises.txt', problems.join('\n'));
+  fs.writeFileSync('Answers.txt', answers.join('\n'));
+}
+
+// 对答案进行判定
+function gradeProblems(exerciseFile, answerFile) {
+  let exercises = fs.readFileSync(exerciseFile, 'utf-8').split('\n');
+  let answers = fs.readFileSync(answerFile, 'utf-8').split('\n');
+
+  let correct = [];
+  let wrong = [];
+
+  for (let i = 0; i < exercises.length; i++) {
+    let problemNumber = i + 1; // 题目编号
+    let actualAnswer = evaluateExpression(exercises[i].replace(/ = $/, '').split('. ')[1]);
+    let studentAnswer = answers[i].split(' ')[1];
+    console.log(i, actualAnswer, studentAnswer, exercises[i].replace(/ = $/, '').split('. ')[1]);
+    if (actualAnswer.toString() === studentAnswer.toString()) {
+      correct.push(problemNumber);
+    } else {
+      wrong.push(problemNumber);
+    }
+  }
+
+  fs.writeFileSync('Grade.txt', `Correct: ${correct.length} (${correct.join(', ')})\nWrong: ${wrong.length} (${wrong.join(', ')})`);
+}
