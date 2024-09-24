@@ -90,7 +90,10 @@ function generateRandomNumberOrFraction(range) {
   let isFraction = Math.random() > 0.5;
   if (isFraction) {
     let numerator = Math.floor(Math.random() * range) + 1;
-    let denominator = Math.floor(Math.random() * range) + 1;
+    let denominator;
+    do {
+      denominator = Math.floor(Math.random() * range) + 1;
+    } while (denominator < numerator);
     return new Fraction(numerator, denominator);
   } else {
     return Math.floor(Math.random() * range);
