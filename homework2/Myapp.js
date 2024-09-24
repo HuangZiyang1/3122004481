@@ -117,11 +117,8 @@ function generateExpression(maxOperators, range) {
     if (operator === '-' && (expr instanceof Fraction ? expr.numerator < nextNum : expr < nextNum)) {
       [expr, nextNum] = [nextNum, expr]; // 确保减法表达式不产生负数
     }
-    if (operator === '/' && (expr instanceof Fraction ? expr.numerator <= nextNum : expr <= nextNum)) {
-      if (nextNum instanceof Fraction ? nextNum.numerator === 0 : nextNum === 0) {
-        i--; // 除数不能为 0，重新生成
-        continue;
-      }
+    if (operator === '/' && ((expr instanceof Fraction ? expr.numerator <= nextNum : expr <= nextNum) || nextNum === '0')) {
+      continue;
     }
     expr = `(${expr} ${operator} ${nextNum})`;
   }
