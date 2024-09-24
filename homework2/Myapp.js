@@ -118,6 +118,11 @@ function generateExpression(maxOperators, range) {
       [expr, nextNum] = [nextNum, expr]; // 确保减法表达式不产生负数
     }
     if (operator === '/' && ((expr instanceof Fraction ? expr.numerator <= nextNum : expr <= nextNum) || nextNum === '0')) {
+      continue; // 避免除法表达式产生假分数或除数为 0
+    }
+    // 表达式比较复杂，所以预先校验，如果计算的结果为负数，那么重新生成
+    if (evaluateExpression(`(${expr} ${operator} ${nextNum})`) < 0) {
+      i--; // 重新生成
       continue;
     }
     expr = `(${expr} ${operator} ${nextNum})`;
