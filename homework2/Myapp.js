@@ -173,11 +173,22 @@ function evaluateExpression(expr) {
       // 通分每个数，计算得到分数的结果
       const fra = math.evaluate(handleFraction(expr))
       const expr1 = `${fra.n}/${fra.d}`
-      return handleFraction(expr1);
+      return genTFra(expr1);
     }
   } else {
     return eval(handleFraction(expr));
   }
+}
+
+function genTFra(expr) {
+  let [n, d] = expr.split('/').map(Number);
+  if (n < d) return expr
+  let s = 0
+  while (n >= d) {
+    n -= d
+    s++
+  }
+  return `${s}'${n}/${d}`
 }
 
 // 处理连带分数
