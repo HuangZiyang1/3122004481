@@ -128,7 +128,7 @@ function getRandomOperator() {
 // 生成随机表达式
 function generateExpression(maxOperators, range) {
   let expr = generateRandomNumberOrFraction(range).toString();
-  let operatorCount = Math.floor(Math.random() * (maxOperators - 1)) + 1; // 至少一个运算符
+  let operatorCount = Math.floor(Math.random() * (maxOperators - 1)) + 2; // 至少一个运算符
 
   for (let i = 0; i < operatorCount; i++) {
     let operator = getRandomOperator();
@@ -137,6 +137,7 @@ function generateExpression(maxOperators, range) {
       [expr, nextNum] = [nextNum, expr]; // 确保减法表达式不产生负数
     }
     if (operator === '/' && ((expr instanceof Fraction ? expr.numerator <= nextNum : expr <= nextNum) || nextNum === '0')) {
+      i--; // 重新生成
       continue; // 避免除法表达式产生假分数或除数为 0
     }
     // 表达式比较复杂，所以预先校验，如果计算的结果为负数，那么重新生成
