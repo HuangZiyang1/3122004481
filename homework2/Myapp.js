@@ -93,11 +93,30 @@ function generateRandomNumberOrFraction(range) {
     let denominator;
     do {
       denominator = Math.floor(Math.random() * range) + 1;
-    } while (denominator < numerator);
-    return new Fraction(numerator, denominator);
+    } while (denominator === numerator);
+    return handleCovToProperFraction(new Fraction(numerator, denominator));
   } else {
     return Math.floor(Math.random() * range);
   }
+}
+
+// 将假分数处理成真分数
+function handleCovToProperFraction(fraction) {
+  // 如果是真分数直接返回
+  if (fraction.numerator < fraction.denominator) {
+    return fraction;
+  }
+  // 如果可以处理到整数
+  if (Number.isInteger(fraction.numerator / fraction.denominator)) {
+    return fraction.numerator / fraction.denominator;
+  }
+  // 如果是假分数
+  let num = 0
+  while (fraction.numerator >= fraction.denominator) {
+    fraction.numerator -= fraction.denominator;
+    num++
+  }
+  return `${num}'${fraction.numerator}/${fraction.denominator}`;
 }
 
 // 生成随机运算符
@@ -135,16 +154,22 @@ function generateExpression(maxOperators, range) {
 function evaluateExpression(expr) {
   if (expr.includes('/')) {
     // 自定义计算真分数方法
-    let result = eval(expr);
+    let result = eval(handleFraction(expr));
     if (Number.isInteger(result)) {
       return result;
     } else {
       // 通分每个数，计算得到分数的结果
-      return eval(expr);
+      return eval(handleFraction(expr));
     }
   } else {
-    return eval(expr);
+    return eval(handleFraction(expr));
   }
+}
+
+// 处理连带分数
+function handleFraction(expr) {
+  // 形如1'2/3的分数转换为1 + 2/3
+  return expr.replace(/(\d+)\'(\d+)\/(\d+)/g, `($1 + $2/$3)`);
 }
 
 // 生成题目和答案
