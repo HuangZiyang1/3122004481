@@ -1,4 +1,15 @@
 const fs = require('fs');
+const { create, all } = require('mathjs')
+
+// configure the default type of numbers as Fractions
+const config = {
+  // Default type of number
+  // Available options: 'number' (default), 'BigNumber', or 'Fraction'
+  number: 'Fraction'
+}
+
+// create a mathjs instance with everything included
+const math = create(all, config)
 
 /**
  * 表示一个分数的类。
@@ -160,7 +171,9 @@ function evaluateExpression(expr) {
       return result;
     } else {
       // 通分每个数，计算得到分数的结果
-      return eval(handleFraction(expr));
+      const fra = math.evaluate(handleFraction(expr))
+      const expr1 = `${fra.n}/${fra.d}`
+      return handleFraction(expr1);
     }
   } else {
     return eval(handleFraction(expr));
