@@ -252,15 +252,47 @@ const args = process.argv.slice(2);
 if (args.includes('-n') && args.includes('-r')) {
   let numProblems = parseInt(args[args.indexOf('-n') + 1]);
   let range = parseInt(args[args.indexOf('-r') + 1]);
+  if (isNaN(numProblems)) {
+    console.log("必须输入一个数字作为题目数量。");
+    process.exit(1);
+  }
+  if (numProblems <= 0) {
+    console.log("题目数量必须大于 0。");
+    process.exit(1);
+  }
+  if (numProblems > 66666) {
+    console.log("题目数量不能超过66666");
+    process.exit(1);
+  }
   if (isNaN(range)) {
     console.log("必须输入一个数字作为范围。");
+    process.exit(1);
+  }
+  if (range <= 0) {
+    console.log("范围必须大于 0。");
+    process.exit(1);
+  }
+  if (!Number.isInteger(range)) {
+    console.log("范围必须是整数。");
+    process.exit(1);
+  }
+  if (range > 66666) {
+    console.log("范围不能超过66666");
     process.exit(1);
   }
   generateProblems(numProblems, range);
 } else if (args.includes('-e') && args.includes('-a')) {
   let exerciseFile = args[args.indexOf('-e') + 1];
   let answerFile = args[args.indexOf('-a') + 1];
+  if (!exerciseFile || !answerFile) {
+    console.log("必须输入练习文件和答案文件。");
+    process.exit(1);
+  }
+  if (!fs.existsSync(exerciseFile) || !fs.existsSync(answerFile)) {
+    console.log("练习文件或答案文件不存在。");
+    process.exit(1);
+  }
   gradeProblems(exerciseFile, answerFile);
 } else {
-  console.log("用例: Myapp.exe -n <number of problems> -r <range> or Myapp.exe -e <exercise file> -a <answer file>");
+  console.log("用例: Myapp.exe -n <number of problems> -r <number of range> 或者 Myapp.exe -e <exercise file> -a <answer file>");
 }
