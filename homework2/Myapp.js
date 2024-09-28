@@ -99,6 +99,9 @@ class Fraction {
 // 生成随机自然数或真分数
 function generateRandomNumberOrFraction(range) {
   let isFraction = Math.random() > 0.5;
+  if (range === 1) {
+    isFraction = false;
+  } // 如果范围为 1，只能生成自然数
   if (isFraction) {
     let numerator = Math.floor(Math.random() * range) + 1;
     let denominator;
@@ -131,7 +134,11 @@ function handleCovToProperFraction(fraction) {
 }
 
 // 生成随机运算符
-function getRandomOperator() {
+function getRandomOperator(range) {
+  if (range === 1) {
+    const operators1 = ['+', '-', '*'];
+    return operators1[Math.floor(Math.random() * operators1.length)];
+  }
   const operators = ['+', '-', '*', '/'];
   return operators[Math.floor(Math.random() * operators.length)];
 }
@@ -142,7 +149,7 @@ function generateExpression(maxOperators, range) {
   let operatorCount = Math.floor(Math.random() * (maxOperators - 1)) + 2; // 至少一个运算符
 
   for (let i = 0; i < operatorCount; i++) {
-    let operator = getRandomOperator();
+    let operator = getRandomOperator(range);
     let nextNum = generateRandomNumberOrFraction(range).toString();
     if (operator === '-' && (expr instanceof Fraction ? expr.numerator < nextNum : expr < nextNum)) {
       [expr, nextNum] = [nextNum, expr]; // 确保减法表达式不产生负数
@@ -212,7 +219,7 @@ function generateProblems(numProblems, range) {
     generated.add(problem);
     let answer = evaluateExpression(problem);
     
-    if (answer !== null && answer !== 0) { // 避免生成 0 = 的无效题目
+    if (answer !== null) {
       problems.push(`${i + 1}. ${problem} = `); // 添加序号
       answers.push(`${i + 1}. ${answer}`); // 添加序号
     } else {
