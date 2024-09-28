@@ -303,3 +303,8 @@ if (args.includes('-n') && args.includes('-r')) {
 } else {
   console.log("用例: Myapp.exe -n <number of problems> -r <number of range> 或者 Myapp.exe -e <exercise file> -a <answer file>");
 }
+
+// 导出模块以便测试
+module.exports = {
+  generateRandomNumberOrFraction
+};
