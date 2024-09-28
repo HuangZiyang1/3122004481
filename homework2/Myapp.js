@@ -1,5 +1,6 @@
 const fs = require('fs');
 const { create, all } = require('mathjs')
+const profiler = require('./performanceProfiler')
 
 // configure the default type of numbers as Fractions
 const config = {
@@ -145,6 +146,7 @@ function getRandomOperator(range) {
 
 // 生成随机表达式
 function generateExpression(maxOperators, range) {
+  profiler.start('generateExpression'); // 开始计时
   let expr = generateRandomNumberOrFraction(range).toString();
   let operatorCount = Math.floor(Math.random() * (maxOperators - 1)) + 2; // 至少一个运算符
 
@@ -165,24 +167,28 @@ function generateExpression(maxOperators, range) {
     }
     expr = `(${expr} ${operator} ${nextNum})`;
   }
-
+  profiler.end('generateExpression'); // 结束计时
   return expr;
 }
 
 // 计算表达式结果
 function evaluateExpression(expr) {
+  profiler.start('evaluateExpression'); // 开始计时
   if (expr.includes('/')) {
     // 自定义计算真分数方法
     let result = eval(handleFraction(expr));
     if (Number.isInteger(result)) {
+      profiler.end('evaluateExpression'); // 结束计时
       return result;
     } else {
       // 通分每个数，计算得到分数的结果
       const fra = math.evaluate(handleFraction(expr))
       const expr1 = `${fra.n}/${fra.d}`
+      profiler.end('evaluateExpression'); // 结束计时
       return genTFra(expr1);
     }
   } else {
+    profiler.end('evaluateExpression'); // 结束计时
     return eval(handleFraction(expr));
   }
 }
@@ -206,6 +212,7 @@ function handleFraction(expr) {
 
 // 生成题目和答案
 function generateProblems(numProblems, range) {
+  profiler.start('generateProblems'); // 开始计时
   let problems = [];
   let answers = [];
   let generated = new Set();
@@ -229,10 +236,12 @@ function generateProblems(numProblems, range) {
 
   fs.writeFileSync('Exercises.txt', problems.join('\n'));
   fs.writeFileSync('Answers.txt', answers.join('\n'));
+  profiler.end('generateProblems'); // 结束计时
 }
 
 // 对答案进行判定
 function gradeProblems(exerciseFile, answerFile) {
+  profiler.start('gradeProblems'); // 开始计时
   let exercises = fs.readFileSync(exerciseFile, 'utf-8').split('\n');
   let answers = fs.readFileSync(answerFile, 'utf-8').split('\n');
 
@@ -252,6 +261,7 @@ function gradeProblems(exerciseFile, answerFile) {
   }
 
   fs.writeFileSync('Grade.txt', `Correct: ${correct.length} (${correct.join(', ')})\nWrong: ${wrong.length} (${wrong.join(', ')})`);
+  profiler.end('gradeProblems'); // 结束计时
 }
 
 // 命令行参数解析
@@ -303,6 +313,11 @@ if (args.includes('-n') && args.includes('-r')) {
 } else {
   console.log("用例: Myapp.exe -n <number of problems> -r <number of range> 或者 Myapp.exe -e <exercise file> -a <answer file>");
 }
+
+// 在程序结束时打印效能分析结果
+process.on('exit', () => {
+  profiler.printSummary();
+});
 
 // 导出模块以便测试
 module.exports = {
